@@ -4,25 +4,26 @@ import Spinner from 'components/Spinner'
 import ListOfGifs from 'components/ListOfGifs'
 import useGifs from 'hooks/useGifs'
 import useNearScreen from 'hooks/useNearScreen'
+import SearchForm from 'components/SearchForm'
 import { Helmet } from 'react-helmet'
 
 export default function SearchResults({ params }) {
-  const { keyword } = params
-  const { loading, gifs, setPage } = useGifs({ keyword })
-  const externalRef = useRef()
-  const { isNearScreen } = useNearScreen({
-    externalRef: loading ? null : externalRef,
-    once: false,
-  })
-  const debounceNextPage = useCallback(() => {
-    debounce(() => setPage(prevPage => prevPage + 1), 2000)
-  }, [setPage])
+  const { keyword, rating = 'g', lang } = params
+  const { loading, gifs, setPage } = useGifs({ keyword, rating, lang })
+  const visorRef = useRef()
+  const { isNearScreen } = useNearScreen({ externalRef: !loading && visorRef, once: false })
 
-  const title = gifs ? `${gifs.length} resultados de ${keyword}` : ''
+  // eslint-disable-next-line
+  const debounceNextPage = useCallback(
+    debounce(() => setPage(prevPage => prevPage + 1), 2000),
+    []
+  )
 
   useEffect(function () {
     if (isNearScreen) debounceNextPage()
   })
+
+  const title = gifs ? `${gifs.length} resultados de ${keyword}` : ''
 
   return (
     <>
@@ -31,12 +32,13 @@ export default function SearchResults({ params }) {
       ) : (
         <>
           <Helmet>
-            <title>{title}</title>
-            <meta name='description' content={title} />
+            <title>{decodeURI(title)}</title>
+            <meta name='description' content={title} />}
           </Helmet>
+          <SearchForm initialKeyword={keyword} initialRating={rating} initialLang={lang} />
           <h3 className='App-title'>{decodeURI(keyword)}</h3>
           <ListOfGifs gifs={gifs} />
-          <div id='visor' ref={externalRef}></div>
+          <div id='visor' ref={visorRef}></div>
         </>
       )}
     </>

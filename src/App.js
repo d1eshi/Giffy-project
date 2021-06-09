@@ -18,7 +18,7 @@ export default function App() {
         </Link>
         <GifsContextProvider>
           <Route component={Home} path='/' />
-          <Route component={SearchResults} path='/search/:keyword' />
+          <Route component={SearchResults} path='/search/:keyword/:rating?/:lang?' />
           <Route component={Detail} path='/gif/:id' />
           <Route component={() => <h1>404 Error:( </h1>} path='/404' />
         </GifsContextProvider>
